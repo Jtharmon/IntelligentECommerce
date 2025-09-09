@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using IntelligentECommerce.Data;
 using IntelligentECommerce.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace IntelligentECommerce.Controllers
 {
@@ -23,7 +23,7 @@ namespace IntelligentECommerce.Controllers
             return await _context.Products.ToListAsync();
         }
 
-        // GET: api/products/{id}
+        // GET: api/products/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
@@ -45,7 +45,7 @@ namespace IntelligentECommerce.Controllers
             return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
         }
 
-        // PUT: api/products/{id}
+        // PUT: api/products/5
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProduct(int id, Product product)
         {
@@ -53,23 +53,12 @@ namespace IntelligentECommerce.Controllers
                 return BadRequest();
 
             _context.Entry(product).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ProductExists(id))
-                    return NotFound();
-                else
-                    throw;
-            }
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        // DELETE: api/products/{id}
+        // DELETE: api/products/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
@@ -82,8 +71,5 @@ namespace IntelligentECommerce.Controllers
 
             return NoContent();
         }
-
-        private bool ProductExists(int id) =>
-            _context.Products.Any(e => e.Id == id);
     }
 }
