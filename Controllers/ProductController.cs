@@ -1,7 +1,7 @@
-using IntelligentECommerce.Data;
-using IntelligentECommerce.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using IntelligentECommerce.Data;
+using IntelligentECommerce.Models;
 
 namespace IntelligentECommerce.Controllers
 {
@@ -23,7 +23,7 @@ namespace IntelligentECommerce.Controllers
             return await _context.Products.ToListAsync();
         }
 
-        // GET: api/products/5
+        // GET: api/products/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
@@ -37,7 +37,7 @@ namespace IntelligentECommerce.Controllers
 
         // POST: api/products
         [HttpPost]
-        public async Task<ActionResult<Product>> CreateProduct(Product product)
+        public async Task<ActionResult<Product>> CreateProduct([FromBody] Product product)
         {
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
@@ -45,20 +45,26 @@ namespace IntelligentECommerce.Controllers
             return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
         }
 
-        // PUT: api/products/5
+        // PUT: api/products/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, Product product)
+        public async Task<IActionResult> UpdateProduct(int id, [FromBody] Product updatedProduct)
         {
-            if (id != product.Id)
-                return BadRequest();
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
+                return NotFound();
 
-            _context.Entry(product).State = EntityState.Modified;
+            // Update fields
+            product.Name = updatedProduct.Name;
+            product.Description = updatedProduct.Description;
+            product.Price = updatedProduct.Price;
+            product.Stock = updatedProduct.Stock;
+
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        // DELETE: api/products/5
+        // DELETE: api/products/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
@@ -71,5 +77,8 @@ namespace IntelligentECommerce.Controllers
 
             return NoContent();
         }
+
+        private bool ProductExists(int id) =>
+            _context.Products.Any(e => e.Id == id);
     }
 }
